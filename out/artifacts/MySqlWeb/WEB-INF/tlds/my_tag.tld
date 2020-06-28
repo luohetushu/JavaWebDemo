@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
+
+    <description>自定义 JSP 标签库</description>
+    <display-name>my-tag</display-name>
+    <tlib-version>1.0</tlib-version>
+    <short-name>mytag</short-name>
+    <uri>http://ww.wuyue.com/mytag/tags</uri>
+
+    <tag>
+        <name>myTag1</name>  <!--实现javax.servlet.jsp.tagext.SimpleTag 接口-->
+        <tag-class>com.mysql.tag.MyTag1</tag-class>
+        <body-content>empty</body-content>  <!--空标签-->
+    </tag>
+
+    <tag>
+        <name>myTag2</name>  <!--继承 javax.servlet.jsp.tagext.SimpleTagSupport 类-->
+        <tag-class>com.mysql.tag.MyTag2</tag-class>
+        <body-content>empty</body-content>  <!--空标签-->
+    </tag>
+
+    <tag>
+        <name>myTag3</name>
+        <tag-class>com.mysql.tag.MyTag3</tag-class>
+        <body-content>scriptless</body-content>  <!--有标签体内容的标签-->
+    </tag>
+
+    <tag>
+        <name>attributeTag</name>  <!--带有属性的标签-->
+        <tag-class>com.mysql.tag.AttributeTag</tag-class>
+        <body-content>scriptless</body-content>
+        <attribute>
+            <name>test</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>skipTag</name>  <!--该标签后面的内容不显示-->
+        <tag-class>com.mysql.tag.SkipTag</tag-class>
+        <body-content>empty</body-content>  <!--空标签-->
+    </tag>
+
+</taglib>

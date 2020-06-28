@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.example.org/20200518"
+        elementFormDefault="qualified">
+    
+    <element name="kamen-rider">  <!--根标签-->
+        <complexType>
+            <sequence maxOccurs="unbounded"> <!--最大出现次数不受限-->
+                <element name="heisei-rider">  <!--复杂标签-->
+                    <!--简单标签没有属性约束，只有复杂标签才有-->
+                    <complexType>
+                        <!--all 表示子标签任意顺序出现-->
+                        <!--choice 表示子标签选择出现一个-->
+                        <sequence> <!--sequence: 表示子标签必须顺序出现-->
+                            <!--以下为简单标签-->
+                            <element name="name" type="string" default="rider0"></element> <!--default 默认值；fixed 固定值-->
+                            <element name="time" type="string"></element>
+                            <element name="riders" type="int"></element>
+                            <element name="enemy" type="string" maxOccurs="1"></element>
+                        </sequence>
+                        <!-- optional(可选属性，默认) prohibited(禁止使用)  required(强制必须)-->
+                        <attribute name="id" type="int" use="optional"></attribute>
+                    </complexType>
+                </element>
+            </sequence>
+        </complexType>
+    </element>
+
+
+</schema>
+

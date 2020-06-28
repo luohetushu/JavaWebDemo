@@ -1,0 +1,58 @@
+池的作用：重用
+
+数据库连接池：对数据库 java.util.Connection 对象的重用，调用 close() 方法不是销毁，而是归还给连接池
+第三方（自定义）数据库连接池：
+  需要实现 javax.sql.DataSource 接口
+      使用 Connection getConnection() throws SQLException;  //获取数据库连接对象
+  需要配置数据库连接的参数：driver、url、user、password
+  需要配置池参数：
+           初始连接数大小、最小空闲连接数、增量（一次增加的连接数）、最大空闲连接数、
+           最大连接数（已连接数超过该值，下次连接需要等待）、最大等待时间
+使用第三方（自定义）数据库连接池：
+1）、创建第三方（自定义）数据库连接池对象
+2）、设置池参数：
+     初始连接数大小、最小空闲连接数、增量（一次增加的连接数）、最大空闲连接数、
+     最大连接数（已连接数超过该值，下次连接需要等待）、最大等待时间
+3）、设置数据库连接的参数：driver、url、user、password，再使用 Connection getConnection() throws SQLException;  //获取数据库连接对象
+
+常用的第三方数据库连接池：dbcp、c3p0
+
+c3p0 数据库连接池：jar 包： //c3p0-0.9.5.5.jar  mchange-commons-java-0.2.19.jar
+可代码配置，也可配置文件配置：
+    //创建池对象时，默认自动加载配置文件  //加载默认配置 default-config
+    //ComboPooledDataSource dataSource = new ComboPooledDataSource();
+    //使用命名配置 //加载命名配置 name-config name="mysql-config"
+    ComboPooledDataSource dataSource = new ComboPooledDataSource("mysql-config");
+
+    // 代码配置  有配置文件，代码配置可省略，不省略则覆盖
+    // 设置连接参数
+    dataSource.setDriverClass("com.mysql.cj.jdbc.Driver");
+    dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/test?useSSL=false&serverTimezone=UTC");
+    dataSource.setUser("root");
+    dataSource.setPassword("root");
+    //设置池参数 不是必须配置
+    dataSource.setInitialPoolSize(10);  //初始大小
+    dataSource.setAcquireIncrement(5);  //增量
+    dataSource.setMinPoolSize(3);  //最小空闲连接数
+    dataSource.setMaxPoolSize(12);  //最大空闲连接数
+    dataSource.setMaxStatements(20); //最大连接数
+    dataSource.setMaxIdleTime(20);  //最大等待时间 秒
+
+    //获取数据库连接对象
+    Connection con = dataSource.getConnection();
+注：配置文件要求：命名规则必须为：c3p0-config.xml；配置文件必须放置在 src 文件下
+   其中 jdbcUrl 中的 & 需要转义为 &amp;
+
+删除 c3p0 连接打印出的日记：Log4j、Dom4j
+
+
+
+
+
+
+
+
+
+
+
+

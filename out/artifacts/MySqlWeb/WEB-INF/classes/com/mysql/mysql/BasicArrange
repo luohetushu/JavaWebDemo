@@ -1,0 +1,69 @@
+事务：一组逻辑相关的SQL指令，要么全部执行，要么全不执行
+事务管理（ACID）
+1、Atomic（原子性）：指整个数据库事务是不可分割的工作单位。
+只有使据库中所有的操作执行成功，才算整个事务成功；事务中任何一个SQL语句执行失败，那么已经执行成功的SQL语句也必须撤销，数据库状态应该退回到执行事务前的状态。
+
+2、Consistency（一致性）：指数据库事务不能破坏关系数据的完整性以及业务逻辑上的一致性
+
+3、Isolation（隔离性）：指的是在并发环境中，当不同的事务同时操纵相同的数据时，每个事务都有各自的完整数据空间
+
+4、Durability（持久性）：指的是只要事务成功结束，它对数据库所做的更新就必须永久保存下来
+即使发生系统崩溃，重新启动数据库系统后，数据库还能恢复到事务成功结束时的状态
+
+
+Mysql 中的事务：通常情况下，mysql 每执行一条 sql 语句，都是一个单独的事务
+在一个事务中包括多条 sql 语句：需要开启（START TRANSACTION）与结束事务（COMMIT 或者 ROLLBACK）
+1）、START TRANSACTION;
+     //多条 sql 语句
+     COMMIT;  //提交结束，事务执行成功
+2）、START TRANSACTION;
+     //多条 sql 语句
+     ROLLBACK;  //回滚结束，Mysql 回滚事务，事务执行失败
+3）、START TRANSACTION;
+     //多条 sql 语句
+     QUIT;  //退出，Mysql 自动回滚事务，事务执行失败
+
+
+
+并发事务问题：
+1）、脏读（dirty read）：读到另一条并发的事务中的未提交更新数据，即读到脏数据
+2）、不可重复读（unrepeatable read）：对同一则数据读取不一致，因为另一条并发的事务对该记录做了修改
+3）、幻读（phantom read）：对同一张表两次查询不一致，因为另一个条并发的事务对该表做了数据插入
+    不可重复读是读取到了另一条事务的更新；
+    幻读是读取到了另一条事务的插入
+
+事务隔离级别：
+1）、串行化 SERIALIZABLE：对同一数据的访问串行处理，防止并发问题（能处理以上三个问题），但性能最差
+2）、可重复读 REPEATABLE READ（Mysql 默认）：防止脏读和不可重复读（不能解决幻读），性能比 SERIALIZABLE 好
+3）、读已提交数据 READ COMMITTED（Oracle 默认）：防止脏读（不能解决不可重复读和幻读），性能比 REPEATABLE READ 好
+4）、读未提交数据 READ UNCOMMITTED：可能出现任何事务并发问题，性能最好
+
+查询 Mysql 隔离级别：
+   1）、select @@transaction_isolation;
+      +-------------------------+
+      | @@transaction_isolation |
+      +-------------------------+
+      | REPEATABLE-READ         |
+      +-------------------------+
+   2）、show variables like 'transaction_isolation';
+      +-----------------------+-----------------+
+      | Variable_name         | Value           |
+      +-----------------------+-----------------+
+      | transaction_isolation | REPEATABLE-READ |
+      +-----------------------+-----------------+
+设置隔离级别：SET TRANSACTION ISOLATION LEVEL [四选一];
+    eg: SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+JDBC 设置隔离级别：
+java.sql.Connection 方法
+     void setTransactionIsolation(int level) throws SQLException;
+     <code>Connection.TRANSACTION_READ_UNCOMMITTED</code>,
+     <code>Connection.TRANSACTION_READ_COMMITTED</code>,
+     <code>Connection.TRANSACTION_REPEATABLE_READ</code>, or
+     <code>Connection.TRANSACTION_SERIALIZABLE</code>.
+
+
+
+
+
+

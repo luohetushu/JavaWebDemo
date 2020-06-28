@@ -1,0 +1,130 @@
+Java Web 三大组件：Servlet、Listener、Filter
+Java Web 四大域对象：javax.servlet.ServletContext：服务器开启到关闭，只有一个对象
+                   javax.servlet.http.HttpSession：客户端访问某个服务器页面到关闭该服务器所有页面，一个会话（一个会话包含多个请求）
+                   javax.servlet.ServletRequest：一个请求链    // .java 中 Servlet 类中包含前三大域
+                   javax.servlet.jsp.PageContext：一个 jsp 请求页面  // .jsp 中包含前四大域
+         所有域对象都能存储数据，由于内部的 Map 集合，用来在多个 Servlet 对象之间传递数据
+         都有 setAttribute("name") getAttribute() removeAttribute("name") 方法
+
+Servlet：运行在 web 服务器或应用服务器的程序，用来处理客户端请求的动态资源
+        服务器会将客户端发送的请求交给 Servlet 处理：接收请求数据；
+                                                处理请求；
+                                                完成响应
+Filter（过滤器）：Servlet 技术中最实用的技术，通过 Filter 技术，对 Web 资源进行拦截，从而实现一些特殊的功能。
+                如：实现 URL 级别的权限访问控制、过滤敏感词汇、压缩响应信息等一些高级功能
+                Web 服务器管理的 Web 资源：如Jsp、Servlet、静态图片文件或静态 html 文件等
+
+Listener（监听器）：用于监听 web 应用中某些对象、信息的创建、销毁、增加，修改，删除等动作的发生，并作出相应的响应处理。
+                  当范围对象的状态发生变化的时候，服务器自动调用监听器对象中的方法。
+                  常用于统计在线人数和在线用户，系统加载时进行信息初始化，统计网站的访问量等等
+
+Java Web 监听器：
+    被监听的事件源：ServletRequest、HttpSession、ServletContext，三大域对象，监听器需要在 web.xml 中配置
+       监听域对象"创建"与"销毁"：
+       监听域对象"操作"域属性
+       监听 HttpSession
+    感知监听，被监听的事件源：JavaBean 实现此类监听，与 HttpSession 相关，不需要在 web.xml 中配置
+ServletContext 监听器：javax.servlet.ServletContextListener  //服务器启动时创建，关闭时销毁
+                         public interface ServletContextListener extends EventListener {
+                            void contextInitialized(ServletContextEvent event); //域对象"创建"时监听方法
+                            void contextDestroyed(ServletContextEvent event);   //域对象"销毁"时监听方法
+                         }
+                      javax.servlet.ServletContextAttributeListener
+                         public interface ServletContextAttributeListener extends EventListener {
+                             void attributeAdded(ServletContextAttributeEvent var1);   //域对象"添加"时监听方法
+                             void attributeRemoved(ServletContextAttributeEvent var1); //域对象"移除"时监听方法
+                             void attributeReplaced(ServletContextAttributeEvent var1);//域对象"覆盖"时监听方法
+                         }
+          监听事件对象：javax.servlet.ServletContextEvent
+                         public class ServletContextEvent extends EventObject {
+                             public ServletContextEvent(ServletContext source) {super(source);}
+                             public ServletContext getServletContext() {return (ServletContext)super.getSource();}
+                         }
+                      javax.servlet.ServletContextAttributeEvent
+                         public class ServletContextAttributeEvent extends ServletContextEvent {
+                             public ServletContext getServletContext() {return super.getServletContext();}
+                             public String getName() {return this.name;}
+                             public Object getValue() {return this.value;}
+                         }
+HttpSession 监听器：javax.servlet.http.HttpSessionListener:   //调用 GET 或 POST 方法创建
+                      public interface HttpSessionListener extends EventListener {
+                         void sessionCreated(HttpSessionEvent var1);   //域对象"创建"时监听方法
+                         void sessionDestroyed(HttpSessionEvent var1); //域对象"销毁"时监听方法
+                      }
+                   javax.servlet.http.HttpSessionAttributeListener
+                      public interface HttpSessionAttributeListener extends EventListener {
+                         void attributeAdded(HttpSessionBindingEvent var1);   //域对象"添加"时监听方法
+                         void attributeRemoved(HttpSessionBindingEvent var1); //域对象"移除"时监听方法
+                         void attributeReplaced(HttpSessionBindingEvent event);//域对象"覆盖"时监听方法 todo event.getValue() 为被覆盖的旧值
+                      }
+      监听事件对象：javax.servlet.http.HttpSessionEvent
+                     public class HttpSessionEvent extends EventObject {
+                         public HttpSessionEvent(HttpSession source) {super(source);}
+                         public HttpSession getHttpSession() {return (HttpSession)super.getSource();}
+                     }
+                  javax.servlet.http.HttpSessionBindingEvent
+                     public class HttpSessionBindingEvent extends HttpSessionEvent {
+                         public HttpSession getSession() {return super.getSession();}
+                         public String getName() {return this.name;}
+                         public Object getValue() {return this.value;}
+                     }
+ServletRequest 监听器：javax.servlet.ServletRequestListener:   //处理客户端请求时创建
+                         public interface ServletRequestListener extends EventListener {
+                            void requestDestroyed(ServletRequestEvent var1);   //域对象"创建"时监听方法
+                            void requestInitialized(ServletRequestEvent var1); //域对象"销毁"时监听方法
+                         }
+                      javax.servlet.ServletRequestAttributeListener
+                         public interface ServletRequestAttributeListener extends EventListener {
+                             void attributeAdded(ServletRequestAttributeEvent var1);   //域对象"添加"时监听方法
+                             void attributeRemoved(ServletRequestAttributeEvent var1); //域对象"移除"时监听方法
+                             void attributeReplaced(ServletRequestAttributeEvent var1);//域对象"覆盖"时监听方法
+                         }
+         监听事件对象：javax.servlet.ServletRequestEvent
+                        public class ServletRequestEvent extends EventObject {
+                            private ServletRequest request;
+                            public ServletRequestEvent(ServletContext sc, ServletRequest request) { super(sc);this.request = request;}
+                            public ServletRequest getServletRequest() {return this.request;}
+                            public ServletContext getServletContext() {return (ServletContext)super.getSource();}
+                        }
+                     javax.servlet.ServletRequestAttributeEvent
+                        public class ServletRequestAttributeEvent extends ServletRequestEvent {
+                            public String getName() {return this.name;}
+                            public Object getValue() {return this.value;}
+                        }
+todo 注：监听域对象的监听器需要在 web.xml 中配置：
+     如： <!--监听器配置，监听域对象的"创建"与"销毁"，以及域属性的"添加、移除与覆盖"-->
+          <listener>
+              <listener-class>com.mysql.listener.ServletListener</listener-class>
+          </listener>
+
+感知监听：//由 JavaBean 实现此监听，与 HttpSession 相关，不需要在 web.xml 中配置
+        javax.servlet.http.HttpSessionBindingListener
+            public interface HttpSessionBindingListener extends EventListener {
+                // HttpSession 域对象绑定 JavaBean 对象时监听方法
+                void valueBound(HttpSessionBindingEvent var1);   //如：在 session.setAttribute("HeiseiRider", rider); 时
+                // HttpSession 域对象解绑 JavaBean 对象时监听方法
+                void valueUnbound(HttpSessionBindingEvent var1); //如：在 session.removeAttribute("HeiseiRider"); 时
+            }
+        javax.servlet.http.HttpSessionActivationListener
+            public interface HttpSessionActivationListener extends EventListener {
+                // 当对象感知被钝化时调用该方法，前提是对象有被 HttpSession 域对象绑定
+                void sessionWillPassivate(HttpSessionEvent var1);
+                // 当对象感知被活化时调用该方法，前提是对象有被 HttpSession 域对象绑定
+                void sessionDidActivate(HttpSessionEvent var1);
+            }
+            todo 注：钝化 HttpSession 域对象：tomcat 等服务器关闭时会将 session 对象钝化，即通过序列化的方式将该对象保存在硬盘文件中
+                                            session 对象被钝化时，存储的数据也被钝化
+                                            若 session 对象保存的 JavaBean 对象没有实现 Serializable 接口，则钝化时先解绑该对象
+                    活化 HttpSession 域对象：tomcat 等服务器启动时会将硬盘文件通过反序列化的方式活化 session 对象
+                                            session 对象被活化时，存储的数据也被活化
+                    防止 tomcat 服务器钝化对象，可在 /conf/context.xml 中添加：<Manager pathname="></Manager>
+                    tomcat 服务器也可以在不关闭或启动的情况下钝化或活化 session 对象，可在 /conf/context.xml 中添加：
+                        <!-- 设置 session 对象最大闲置时间（1分钟），以及超时之后的钝化路径-->
+                        <Manager className="org.apache.catalina.session.PersistentManager" maxIdleSwap="1">
+                          <Store className="org.apache.catalina.session.FileStore" directory="LocalSession"></Store>
+                        </Manager>
+
+
+
+
+

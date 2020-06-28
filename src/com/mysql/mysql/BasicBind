@@ -1,0 +1,102 @@
+约束：用来约束表中的指定列的
+1、主键约束（唯一标识）：非空、唯一、被外键引用
+   创建表时指定主键的方式：
+       1）、CREATE TABLE [IF NOT EXISTS ] KamenRider(
+                 -> id   int PRIMARY KEY AUTO_INCREMENT,  //指定 id 为主键列，自增长
+                 -> name varchar(20),
+                 -> sex  varchar(2),
+                 -> age  int(20),
+                 -> bir  date
+                 -> )character set utf8 collate utf8_general_ci;
+       2）、CREATE TABLE [IF NOT EXISTS ] KamenRider(
+                        -> id   int PRIMARY KEY auto_increment,
+                        -> name varchar(20),
+                        -> sex  varchar(2),
+                        -> age  int(20),
+                        -> bir  date,
+                        -> PRIMARY KEY(id) //指定 id 为主键列
+                        -> )character set utf8 collate utf8_general_ci;
+   给表中指定列添加主键：ALTER TABLE 表名 ADD PRIMARY KEY(列名);
+   删除表中的主键：ALTER TABLE 表名 DROP PRIMARY KEY;
+
+2、主键自增长：CREATE TABLE IF NOT EXISTS Riders(
+                         -> id    int PRIMARY KEY AUTO_INCREMENT,  //指定 id 为主键列，自增长
+                         -> name  varchar(20),
+                         -> birth date
+                         -> )character set utf8 collate utf8_general_ci;
+   删除主键自增长：ALTER TABLE Riders CHANGE id id INT AUTO_INCREMENT;
+   设置主键自增长：ALTER TABLE Riders CHANGE id id INT;
+   注：没有自增长时，插入主键的数据不能为 null；有自增长时，插入主键的数据可以为 null；
+
+3、非空约束：创建表时，可对某些列进行非空约束，NOT NULL
+   CREATE TABLE IF NOT EXISTS Riders(
+                            -> id    int PRIMARY KEY AUTO_INCREMENT,  //指定 id 为主键列，自增长
+                            -> name  varchar(20) NOT NULL,  //设置非空约束
+                            -> birth date
+                            -> )character set utf8 collate utf8_general_ci;
+
+4、唯一约束：创建表时，可对某些列进行唯一约束 UNIQUE
+   CREATE TABLE IF NOT EXISTS Riders(
+                               -> id    int PRIMARY KEY AUTO_INCREMENT,  //指定 id 为主键列，自增长
+                               -> name  varchar(20) NOT NULL UNIQUE,  //设置非空与唯一约束
+                               -> birth date
+                               -> )character set utf8 collate utf8_general_ci;
+
+5、概念模型：
+  对象模型：在程序开发中，Java 需要将实体抽象为类，该过程就称为对象模型的建立
+          类与类之间存在关联，关联关系有：
+          1对多（多对1）：
+          1对1：
+          多对多：
+  关系模型：在程序开发中，数据库 需要将实体抽象为表，该过程就称为关系模型的建立
+          表与表之间的关联需要使用外键约束
+
+6、外键约束：某个表（从表）中的非主键列是另外多个（1～N）表（主表，可以从表本身）中的主键列，在从表中外键可以为空、可以重复
+   数据库中表与表之间的关联关系有：
+   1对多：只需在"多"方使用一个独立的列来引用"1"方的主键
+         eg：//"多"方，比如员工
+            CREATE TABLE emp(
+            -> empno INT PRIMARY KEY AUTO_INCREMENT,  //员工编号
+            -> ...
+            -> deptno INT, //员工所属部门编号
+            -> CONSTRAINT fk_emp_dept FOREIGN KEY(deptno) REFERENCES dept(deptno)   //进行外键约束
+            );
+         添加"外键约束"指令：ALTER TABLE emp ADD CONSTRAINT fk_emp_dept FOREIGN KEY(deptno) REFERENCES dept(deptno);
+            //"1"方，比如部门
+            CREATE TABLE dept(
+            -> deptno INT PRIMARY KEY,  //部门编号
+            -> ...
+            );
+         注：进行外键约束后，从表添加的外键的数据可以为 null，可以重复，但不能超出主表主键值的范围  //a foreign key constraint fails
+   1对1：从表的主键也是外键
+        eg: //主表
+            CREATE TABLE hasband(
+            -> hid INT PRIMARY KEY AUTO_INCREMENT,  //丈夫id
+            -> hname VARCHAR(20)
+            );
+            //从表
+            CREATE TABLE wife(
+            -> wid INT PRIMARY KEY AUTO_INCREMENT,  //妻子id
+            -> wname VARCHAR(20),
+            -> CONSTRAINT fk_wife_hasband FOREIGN KEY(wid) REFERENCES hasband(hid)   //进行外键约束
+            );
+   多对多："多方"（主表）与"多方"（主表）之间需要创建独立的关联表（从表）
+        eg: //主表
+            CREATE TABLE student(
+            -> sid INT PRIMARY KEY AUTO_INCREMENT,  //学生id
+            -> sname VARCHAR(20)
+            );
+            CREATE TABLE teacher(
+            -> tid INT PRIMARY KEY AUTO_INCREMENT,  //老师id
+            -> tname VARCHAR(20)
+            );
+            //从表
+            CREATE TABLE stu_tea(
+            -> sid INT,  //学生id
+            -> tid INT,  //老师id
+            -> CONSTRAINT fk_student FOREIGN KEY(sid) REFERENCES student(sid), //进行外键约束
+            -> CONSTRAINT fk_teacher FOREIGN KEY(tid) REFERENCES teacher(tid) //进行外键约束
+            );
+
+
+

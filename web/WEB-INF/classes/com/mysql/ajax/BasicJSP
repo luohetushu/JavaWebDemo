@@ -1,0 +1,326 @@
+JSP : Java Server Pages, Java 服务器页面
+      一个简化的 Servlet 设计, 一种动态网页技术标准
+JSP 技术是在传统的网页 HTML 文件中插入 Java程序段 和 JSP标记，实现 Html 语法中的 Java 扩展（以 <%, %>形式），从而形成 JSP 文件，后缀名为(*.jsp)
+JSP 与 Servlet 一样，是在服务器端执行的，通常返回给客户端的就是一个 HTML 文本，因此客户端只要有浏览器就能浏览
+JSP 具备了 Java 技术的简单易用，完全的面向对象，具有平台无关性且安全可靠
+
+javax.servlet.Servlet
+   缺点：不适合设置 html 响应体，需要大量的 response.getWriter().print("html");
+   优点：动态资源，可以编辑
+HTMl：Hyper Text Markup Language 超文本标记语言
+   缺点：html 是静态页面，不能包含动态信息
+   优点：能直接输出 html 标签内容
+JSP：Java Server Page
+   优点：在原有 html 基础上添加 java 脚本，构成 jsp 文件
+
+JSP 与 Servlet 分工：
+   JSP：作为请求发起页面：比如先生表单、超链接
+        作为请求结束页面：比如显示数据
+   Servlet：作为处理客户请求的环节
+
+JSP 组成：
+   jsp 文件 = html + java 脚本 + jsp 标签（指令）
+   jsp 九大 todo 内置对象，无需创建，即可使用，
+       application(javax.servlet.ServletContext 对象):
+       session（javax.servlet.http.HttpSession 对象）
+       request(javax.servlet.http.HttpServletRequest 对象)、
+       response(javax.servlet.http.HttpServletResponse 对象)
+       out(javax.servlet.jsp.JspWriter 子类对象)
+       config(javax.servlet.ServletConfig 对象)
+       page(java.lang.Object 对象)：当前页面的 "this"，即当前页面对象，Object page = this;
+       pageContext(javax.servlet.jsp.PageContext 对象)：当前页面上下文对象，JavaWeb 另一个域对象
+       exception(java.lang.Throwable 对象)：只有当前页面设置 <%@ page isErrorPage="true" %> 时才可使用
+   java 脚本：1、<% ... %>: java 代码片段，用来定义 0～N 条 java 语句
+             2、<%= ... %>：java 表达式，常用来输出，比如输出一则表达式（变量）的结果
+             3、<%! ... %>：声明，用来创建类的成员变量与方法，使用时 this.成员变量 this.成员方法
+   jsp 注释：<%-- ... --%>
+
+JSP 原理：一个简化的 Servlet 设计, 一种动态网页技术标准
+   当 jsp 页面第一次被访问时，服务器将之编译成 .java 文件（一个 Servlet 类），
+   随之编译成 .class 字节码文件，再创建该类对象，调用内部的 service(request, response) 方法。
+   第二次访问同一个 jsp 页面时，直接调用 service(request, response) 方法
+
+JSP 三大指令：指令格式 todo <%@ 指令名 属性1="属性值1" 属性2="属性值2" %>
+    一般将 JSP 指令放在 .jsp 文件最上方，但非必须的
+三大指令：page：page 指令属性非必须的，如 <%@ page %>，皆是可选属性
+              可选属性：pageEncoding：指定当前 .jsp 页面的编码，todo 在服务器将 .jsp 文件 编译 .java 时需要 pageEncoding
+                      contentType：设置响应字符流的编码、设置请求头：<%@ page contentType="text/html;charset=UTF-8" %>
+                           ** pageEncoding 设置的页面编码，与 contentType 设置的编码，两者如果只定义一个，另一个的编码值默认为当前出现的编码值
+                              如果两者都没定义，则默认编码为 ISO
+                      import：导入包，可以定义多个，也可以只定义一个（包与包之间 ", " 隔开）
+                      errorPage：如果当前抛出异常，可以转发至指定页面，如：<%@ page errorPage="转发页面地址" %>
+                      isErrorPage：设置当前页面是否为处理错误的页面，
+                                   <%@ page isErrorPage="true" %> ，此时转发到该页面时客户端响应码为 500，否则是 200
+                                   todo 只有设置为 true，当前页面才可使用内置对象 exception，否则无法使用
+                      autoFlush：当 JSP 输出流（out 对象）的缓冲区满时，是否设置自动刷新，默认为 true；如果为 false，则抛出异常
+                      buffer：设置 JSP 输出流（out 对象）的缓冲区大小，默认为 8KB
+                      isELIgnored：表示当前页面是否忽略 EL 表达式，默认为 false，不忽略，即支持
+                      language：目前只能为 java，即 .jsp 只能编译成 .java 文件
+                      info：当前页面的说明性信息
+                      isThreadSafe：表示当前页面是否支持并发访问，默认为 false；如果为 true，.jsp 编译成的 .java 中的
+                                    Servlet 类会实现 SingleThreadModel 接口（已过时），此时当前页面只能处理单线程的访问
+                      session：默认为 true，表示当前页面可以使用内置对象 session；如果设置为 false，则不能使用
+                      extends：指定当前 .jsp 文件编译成的 .java 文件中的 Servlet 类继承的父类
+      include：静态包含，指当前 .jsp 文件静态包含其他 .jsp 文件，如：<%@ include file="其他 .jsp 文件路径" %>，可以包含多个 .jsp 文件
+               虽然有多个 .jsp 文件，但服务器只编译生成一个 .java 文件，最终编译只有一个 .class 文件
+               作用：分解 .jsp 文件，提高重用性  todo 注：在被包含的 .jsp 文件中需要去除相同的根标签与 page 指令
+       taglib：导入标签库 <%@ taglib prefix="标签库前缀" url="标签库路径" %>
+               prefix：指定导入的标签库在本页面中使用前缀，eg：前缀命名为 pre，导入的标签库有 <text> 标签，则在本页面中使用为：<pre:text>
+               url：标签库路径，可以是相同项目下的自定义标签，也可以是提供 url 的第三方标签库
+
+JSP 动作标签，由服务器来解析执行，与 html 不一样（html 动作标签由客户端解析执行）
+    动作标签前缀名固定为 jsp
+    1、转发：<jsp:forward page="转发的 .jsp 页面路径"></jsp:forward>，功能与 Servlet 类中 forward(req, resp) 一致
+    2、包含：<jsp:include page="包含的 .jsp 页面路径" flush="true|false"></jsp:include> ，功能与 Servlet 类中 include(req, resp) 一致
+       todo 动态包含，包含与被包含是服务器编译成两个 Servlet 类，即有两个 .class 文件，只是将响应的内容合并
+    3、参数：<jsp:param name="参数名1" value="参数值1"/>，todo 作为 <jsp:forward> 与 <jsp:include> 子标签使用，用来传递参数
+            在被转发或被包含的页面中，通过 request.getParameter("参数名1"); 获取
+    与 JavaBean 类相关的动态标签
+    4、创建或查询 JavaBean 类：<jsp:useBean id="rider1" class="com.mysql.bean.HeiseiRider" scope="request"></jsp:useBean>
+                             id：存储 id，如果保存在域中，通过该 id 查找，如：HeiseiRider rider = (HeiseiRider)request.getAttribute("rider1");
+                             class：JavaBean 类路径（包名+类名），如果存在则查询，如果不存在则创建
+                             scope：存储所选择的域，page、request、session、application
+    5、设置指定 JavaBean 类属性值：<jsp:setProperty name="rider1" property="name" value="Kiva"></jsp:setProperty>
+                                //其中 name 的值为 <jsp:useBean> 中 id 的值
+    6、获取指定 JavaBean 类属性值：<jsp:getProperty name="rider1" property="name"></jsp:setProperty>
+
+JSP 内置表达式语言：EL 表达式，todo 格式：${ 表达式 }  // 一个表达式结果的输出
+    作用：使用 EL 表达式和动作标签代替 java 脚本，todo EL 表达式代替 <%= ... %> 只做输出
+    1、查找四大域指定名属性：${ 属性名 };  //全域查找，从小到大，依次查找，如果不存在则输出空字符串
+    2、查找指定域属性：${ 指定域Scope.属性名 };   //指定域Scope 分别为 pageScope、requestScope、sessionScope、applicationScope
+    3、javaBean 类属性成员导航输出：
+       如：<jsp:useBean id="rider1" class="com.mysql.bean.HeiseiRider" scope="request"></jsp:useBean>
+          <jsp:setProperty name="rider1" property="name" value="Kiva"></jsp:setProperty>
+          ${requestScope.rider1.name}  //输出 Kiva 相当于 HeiseiRider rider = (HeiseiRider)request.getAttribute("rider1");
+                                                         out.print(rider.getName());
+       操作 list 与数组：${list[0]} ${arr[0]}
+       操作 javaBean 类：${bean.name} 或者 ${bean['name']}   //相当于 bean.getName()
+       操作 map：${map.key} 或者 ${map['key']}   //相当于 map.get(key)
+    4、运算符：+、-、*：加、减、乘
+             / 或 div：除以
+             % 或 mod：取余
+             == 或 eq：等于
+             != 或 ne：不等于
+             < 或 lt：小于
+             > 或 gt：大于
+             <= 或 le：小于等于
+             >= 或 ge：大于等于
+             && 或 and：逻辑与
+             ! 或 not：逻辑非
+             || 或 or：逻辑或
+             empty：判断是否为空  ${empty ...}  //可以判断字符串、数组、集合长度是否为0，0则输出 true
+                                ${! empty ...} 或 ${not empty ...}
+    5、内置对象，可以直接使用
+       四大域：pageScope
+              requestScope
+              sessionScope
+              applicationScope
+       请求 url 参数：param：相当于 Map<String, String>类型，${param.key} 等同于 request.getParameter("key");
+                     paramValues：相当于 Map<String, String[]>类型,
+                                  如：/index.jsp?key=value1&&key=value2  ${paramValues.key[0]}  // 输出 value1
+       请求头：header：相当于 Map<String, String>类型，${header.Host} 等同于 request.getHeader("Host");
+              headerValues：相当于 Map<String, String[]>类型，当一个 请求头名称 对应多个 请求头值 时使用
+       初始化参数：initParam：相当于 Map<String, String>类型，对应于 web.xml 中的 <context-param> 参数
+                            ${initParam.name} 等同于 <%= application.getInitParameter("name") %>
+       cookie：相当于 Map<String, Cookie>类型，
+                  如：<% Cookie useCookie1 = new Cookie("username1", "Den-O");
+                         response.addCookie(useCookie1);%>
+                     ${cookie.username1.name}  //输出 username1
+                     ${cookie.username1.value}  //输出 Den-O
+       pageContext：javax.servlet.jsp.PageContext 类型
+    6、EL 函数库：todo 需要先导入第三方函数库，<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+                      需要先导入 jar 包：taglibs-standard-impl-1.2.5.jar  taglibs-standard-spec-1.2.5.jar
+           String toUpperCase(String input)：
+           String toLowerCase(String input)：
+           int indexOf(String input, String substring)：
+           boolean contains(Object obj, String substring)：  // 查看字符串、数组、各种集合中是否包含
+           boolean containsIgnoreCase(Object obj, String substring)：
+           boolean startsWith(String input, String substring)：
+           boolean endsWith(String input, String substring)：
+           String substring(String input, int beginIndex, int endIndex)： //如果 endIndex=-1，则表示输出后面全段
+           String substringAfter(String input, String substring)：//hello-world, “-“ 输出 world
+           String substringBefore(String input, String substring)： //hello-world, “-“ 输出 hello
+           String escapeXml(String input)： // 将 xml 字符串中的标签的 >、<，内容中的 '、"、&、空格 等进行转义
+           String trim(String input)： //头尾去空
+           String replace(String input, String substringBefore, String substringAfter)：
+           String[] split(String input, String delimiters)：
+           int length(Object obj)： // 可以获取字符串、数组、各种集合的长度！
+           String join(String array[], String separator)：//将数组以给定 separator 拼接成字符串并输出
+       todo 自定义函数库
+       1、首先编写一个 java 类，在类中定义 1～N 个静态的、有返回值的函数；
+       2、在 WEB_INF 文件下创建 .tld 文件，声明所自定义的 EL 函数库类
+          <uri>http://ww.wuyue.com/myel/function</uri>
+          <function>
+              <name>add</name>
+              <function-class>com.mysql.custom.MyELFunction</function-class>
+              <function-signature>int add(int...)</function-signature>
+          </function>
+          <function>
+              <name>isEmail</name>
+              <function-class>com.mysql.custom.MyELFunction</function-class>
+              <function-signature>boolean isEmail(java.lang.String)</function-signature>
+          </function>
+       3、在需要的 .jsp 文件中 todo 引用 <%@ taglib prefix="fun" uri="http://ww.wuyue.com/myel/function" %>
+
+JSTL 标签库:Java Standard Tag Library, 由 JCP(Java Community Process) 指定标准, 和 EL 配合取代 java 脚本,以便开发
+     标签库 jar 包：Impl:   taglibs-standard-impl-1.2.5.jar    JSTL 实现类库
+                   Spec:   taglibs-standard-spec-1.2.5.jar    JSTL 标准接口  //一般使用以上两个
+                   EL:     taglibs-standard-jstlel-1.2.5.jar  JSTL1.0 标签-EL相关
+                   Compat: taglibs-standard-compat-1.2.5.jar  兼容版本
+     常用标签库：
+         core：核心标签库，<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+              out：输出，默认转义，如：<c:out value="${fn:length(map)}" default="空的空的" escapeXml="true"/>
+                   vale：可以是字符串常量，或者 EL 表达式
+                   default：当输出内容为 null 时，输出 default 值
+                   escapeXml：默认转义，为 true
+              set：设置域的属性，默认域为 pageContext，<c:set var="rider" value="Kiva" property="" scope="page" target=""/>
+                   var：变量（属性）名，
+                   value：变量（属性）值，可以是字符串常量，或者 EL 表达式
+                   scope：域，默认 page，可选 page、request、session、application
+                   target（指定对象） 与 property（属性名） 共用，设置 Map 对象 或者 JavaBean 对象使用：
+                       <c:set target="${myMap}" property="name1" value="value1" scope="request"/>  //Map 对象：
+                       <c:set target="${myBean}" property="name2" value="value2" scope="request"/> //JavaBean 对象：
+              remove：移除域的属性：<c:remove var="rider" scope="page" />
+                   var：变量（属性）名，
+                   scope：域，可选 page、request、session、application，默认为删除所有域中同名的属性
+              catch：捕获异常标签
+                     <c:catch var="e"> ... </c:catch>
+                     ${e.message}  //输出异常信息
+              forTokens：分割字符
+                        <c:forTokens items="sdfa,fsad,fds" delims="," var="result">
+                            ${result}<br/>
+                        </c:forTokens>
+              url：输出指定地址，<c:url value="/login.jsp"/> 等同于：${pageContext.request.contextPath}/AjaxServlet
+                   value：指定地址，输出时默认添加项目名，<%--/MySqlWeb/AjaxServlet--%>
+                   子标签 <c:param name="参数1" value="参数值1"/>  // 在 url 后添加参数
+                   var：变量（属性）名，如果添加该属性，则 url 标签不会输出到页面，而是保存在域中
+                   scope：域，默认 page，可选 page、request、session、application，与 var 一起使用
+              if：判断标签：
+                   <c:if test="布尔类型">
+                       <a href="<c:url value="/login.jsp"/>">点击这里</a>
+                   </c:if>
+                   test：必须是一个 boolean 的表达式，只有值为 true，才执行 <c:if>...</c:if> 标签内的内容，否则不执行
+                   var：变量（属性）名，如果添加该属性，则 <c:if> 标签判断结果，即 test 内容，会保存在域中
+                   scope：域，默认 page，可选 page、request、session、application，与 var 一起使用
+              choose：选择标签，相当于 Java 中的 if/else if/else 结构
+                      <c:choose>
+                          <c:when test="布尔类型">判断输出结果</c:when>
+                          <c:when test="布尔类型">判断输出结果</c:when>
+                          <c:when test="布尔类型">判断输出结果</c:when>
+                          <c:otherwise>判断输出结果</c:otherwise>
+                      </c:choose>
+              forEach：循环标签
+                   1、使用计数的循环方式，相当于 for(int i = 0; i <= 10; i++){..}
+                      <c:foreach var="i" begin="0" end="10" step="1"> ... </c:foreach>
+                      var：循环变量
+                      begin：循环变量初始值
+                      end：循环变量最终结束判断值
+                      step：步长，默认为1
+                   2、用来输出数组、集合，相当于 for(String str : lists){..}
+                      <c:forEach items="lists" var="str" varStatus="vs"> ... </c:foreach>
+                      items: 可以是集合或者数组 todo items 内容中不要出现空格
+                      var：将集合或者数组中每个元素赋值给 var 指定变量
+                      varStatus：循环变量的状态变量，有如下几个属性：
+                          index：当前的循环到的元素的下标，${vs.index}
+                          count：循环到当前的元素时共循环几次，${vs.count}
+                          first：判断当前元素是否是第一个，${vs.first}
+                          last：判断当前元素是否是最后一个，${vs.last}
+                          current：当前元素，${vs.current}  等价于 ${str}
+         fmt：格式化标签，<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+              1、对日期进行文本格式化  日期 -> 文本
+                 <fmt:formatDate value="<%=new Date()%>" pattern="yyyy-MM-dd HH:mm:ss" var="date" scope="page"/>
+                 ${pageScope.date}  //2020-05-26 17:33:53
+                 value：Date 类对象
+                 pattern：格式化文本样式
+                 var：变量（属性）名，如果添加该属性，则 <fmt:formatDate> 格式化内容，会保存在域中，而不会输出在本页面
+                 scope：域，默认 page，可选 page、request、session、application，与 var 一起使用
+              2、对数字进行格式化
+                 <fmt:formatNumber value="3.1415926" pattern="0.000" var="number" scope="page"/>
+                 ${pageScope.number}  //3.142
+                 value：数字
+                 pattern：格式化样式，支持的特殊字符：
+                     0	显示数字，如果位数不够则补 0
+                     #	显示数字，如果位数不够不发生变化
+                     .	小数分隔符
+                     -	减号
+                     ,	组分隔符（每几位分隔，此时位数不够不会补位）new DecimalFormat(",000").format(299792459L) //299,792,459
+                     E	分隔科学记数法中的小数和系数  new DecimalFormat("00.000000E00").format(299792459L) //29.979246E07
+                     %	前缀或后缀，乘以 100 后作为百分比显示 new DecimalFormat(",00.###%").format(3.1415926) //3,14.159%
+                 var：变量（属性）名，如果添加该属性，则 <fmt:formatNumber> 格式化内容，会保存在域中，而不会输出在本页面
+                 scope：域，默认 page，可选 page、request、session、application，与 var 一起使用
+         functions，函数库，对字符串的处理，<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
+JSP 自定义标签库
+    步骤：1、1)自定义标签处理类，使该类实现 javax.servlet.jsp.tagext.SimpleTag 接口
+                public interface SimpleTag extends JspTag {
+                    void doTag() throws JspException, IOException;  //每次执行标签时都会调用该方法
+                        //所有 setXXX() 方法都在 doTag() 之前被服务器调用，所以在该方法中可以使用服务器传递的对象
+                    void setParent(JspTag parent);   //设置父标签，服务器调用
+                    JspTag getParent();  //获取父标签，我们自己调用
+                    void setJspContext(JspContext context);  // 设置 jsp 上下文，被服务器调用，基本传递的是 PageContext 对象
+                    void setJspBody(JspFragment body);  // 设置标签体，被服务器调用
+                }
+            2)自定义标签处理类，使该类继承 javax.servlet.jsp.tagext.SimpleTagSupport 类
+                public class SimpleTagSupport implements SimpleTag {}
+                只需重写 public void doTag() throws JspException, IOException{} 方法
+         2、在 WEB_INF 文件下创建 .tld 文件，声明所自定义的 JSP 标签库
+            <tag>
+                <name>myTag1</name>  <!--实现javax.servlet.jsp.tagext.SimpleTag 接口-->
+                <tag-class>com.mysql.tag.MyTag1</tag-class>
+                <body-content>empty</body-content>  <!--空标签-->
+            </tag>
+            <tag>
+                <name>myTag2</name>  <!--继承 javax.servlet.jsp.tagext.SimpleTagSupport 类-->
+                <tag-class>com.mysql.tag.MyTag2</tag-class>
+                <body-content>empty</body-content>  <!--空标签-->
+            </tag>
+            body-content: 标签体内容，有如下几个选项
+                empty：空标签
+                scriptless：标签体可以是 EL 表达式、JSTL 标签等，如果需要标签体里有其他标签，则设为该选项
+                JSP：指标签体内容可以是 java 脚本、EL 表达式，其他标签，目前已不支持
+                tagdependent：指标签体内容不会被执行，而是交由自定义标签处理类来实现运算
+         3、在需要的 .jsp 文件中 todo 引用 <%@ taglib prefix="tag" uri="http://ww.wuyue.com/mytag/tags" %>
+    自定义带有属性的标签
+    步骤：1、在标签处理类中添加属性，并设置 set 方法
+            注：该 set 方法会在 doTag() 调用之前被服务器调用
+         2、将添加的属性在 .tld 文件中配置
+            <attribute>
+                <name>test</name>   //添加的属性名
+                <required>true</required>  //表示该属性是否必须使用
+                <rtexprvalue>true</rtexprvalue>  //表示该属性内容是否支持 EL 表达式
+            </attribute>
+
+
+javax.servlet.jsp.PageContext：一个 jsp 请求页面，该域对象在当前 .jsp 页面与当前页面标签之间共享数据  // .jsp 中包含前四大域
+     作用：域对象：void setAttribute(String name, Object value);  //存储域属性，name 为域属性名，value 为域属性值
+                 Object getAttribute(String name);  //根据域属性名 name，获取域属性值
+                 void removeAttribute(String name); //删除指定域属性名 name 的域属性，如果 name 不存在，则放到不处理
+       代理其他域：void setAttribute(String name, Object value, int scope); //代理指定域存储属性
+                      todo PageContext.PAGE_SCOPE(1) REQUEST_SCOPE(2) SESSION_SCOPE(3) APPLICATION_SCOPE(4)
+                  Object getAttribute(String name, int scope);  //获取代理域域属性值
+                  void removeAttribute(String name, int scope);  //移除代理域属性
+                  Enumeration<String> getAttributeNamesInScope(int scope); //获取代理域所有属性名
+         全域查找：Object findAttribute(String name);  //在四大域中查找指定名的域属性  // 从小到大，依次查找
+       可以获取其他八个内置对象：
+
+
+在 web.xml 文件中 todo 配置处理错误的页面
+    <!--配置处理错误页面-->
+    <error-page>
+        <error-code>400</error-code>  <!--客户端响应码-->
+        <location>/error400.jsp</location>  <!--出现错误时，转发的页面 url-->
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>  <!--客户端响应码，一般为服务器端错误-->
+        <location>/error500.jsp</location>  <!--出现错误时，转发的页面 url-->
+    </error-page>
+    <error-page>
+        <exception-type>java.lang.RuntimeException</exception-type> <!--指定错误的页面抛出的异常-->
+        <location>/error500/run_except.jsp</location> <!--客户端响应码 500，且抛出指定异常，则转发至该页面，否则转发至 error500.jsp 页面-->
+    </error-page>
+
+
+
+
+
+

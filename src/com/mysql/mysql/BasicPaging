@@ -1,0 +1,13 @@
+分页
+
+MySql 分页查询：
+    SELECT * FROM 表名 LIMIT (startIndex-1) * pageSize, pageSize; // startIndex: 当前页下标，从 1 开始
+                                                             // pageSize 当前页记录行数
+
+
+
+
+
+
+
+

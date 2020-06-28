@@ -1,0 +1,141 @@
+Java Web 三大组件：Servlet、Listener、Filter
+Java Web 四大域对象：javax.servlet.ServletContext：服务器开启到关闭，只有一个对象
+                   javax.servlet.http.HttpSession：客户端访问某个服务器页面到关闭该服务器所有页面，一个会话（一个会话包含多个请求）
+                   javax.servlet.ServletRequest：一个请求链    // .java 中 Servlet 类中包含前三大域
+                   javax.servlet.jsp.PageContext：一个 jsp 请求页面  // .jsp 中包含前四大域
+         所有域对象都能存储数据，由于内部的 Map 集合，用来在多个 Servlet 对象之间传递数据
+         都有 setAttribute("name") getAttribute() removeAttribute("name") 方法
+
+Servlet：运行在 web 服务器或应用服务器的程序，用来处理客户端请求的动态资源
+        服务器会将客户端发送的请求交给 Servlet 处理：接收请求数据；
+                                                处理请求；
+                                                完成响应
+Filter（过滤器）：Servlet 技术中最实用的技术，通过 Filter 技术，对 Web 资源进行拦截，从而实现一些特殊的功能。
+                如：实现 URL 级别的权限访问控制、过滤敏感词汇、压缩响应信息等一些高级功能
+                Web 服务器管理的 Web 资源：如Jsp、Servlet、静态图片文件或静态 html 文件等
+
+Listener（监听器）：用于监听 web 应用中某些对象、信息的创建、销毁、增加，修改，删除等动作的发生，并作出相应的响应处理。
+                  当范围对象的状态发生变化的时候，服务器自动调用监听器对象中的方法。
+                  常用于统计在线人数和在线用户，系统加载时进行信息初始化，统计网站的访问量等等
+
+创建 Servlet 方式：
+    1、实现 javax.servlet.Servlet 接口；
+               public interface Servlet {
+                   void init(ServletConfig var1) throws ServletException;
+                   ServletConfig getServletConfig();
+                   void service(ServletRequest var1, ServletResponse var2) throws ServletException, IOException;
+                   String getServletInfo();
+                   void destroy();
+               }
+    2、继承 javax.servlet.GenericServlet 类；
+               public abstract class GenericServlet implements Servlet, ServletConfig, Serializable {}
+    3、继承 javax.servlet.http.HttpServlet 类；  //最常用
+           public abstract class HttpServlet extends GenericServlet implements Serializable {}
+           需要覆写 doGet() 或者 doPost() 方法，且不能调用 super.doGet(req, resp); 或 super.doPost(req, resp); 不然出现 HTTP 405-Method Not ALLOWED
+
+Servlet 生命周期方法：
+   1、void init(ServletConfig var1) throws ServletException; //在 tomcat 等服务器创建 Servlet 对象后立刻执行，且只执行一次
+      默认情况下，tomcat 等服务器在收到 Servlet 第一次请求时才创建 Servlet 对象，
+      可以在 web.xml 中设置，在 tomcat 等服务器启动时就创建 Servlet 对象：<load-on-startup>0</load-on-startup> //设置非负整数
+   2、void service(ServletRequest var1, ServletResponse var2) throws ServletException, IOException;
+      //服务器会将客户端发送的请求交给 Servlet 处理，调用该方法（每处理一次请求，调用一次该方法）
+   3、void destroy(); //在 tomcat 等服务器销毁 Servlet 对象之前执行，且只执行一次
+   特性：一个实现 javax.servlet.Servlet 接口的 Servlet 类只有一个对象；
+        实现 javax.servlet.Servlet 接口的 Servlet 类线程不安全，但处理效率最高，
+                                         故防止出现多线程安全问题， Servlet 类中不能创建成员或者创建只读的成员
+
+Servlet 配置信息：javax.servlet.ServletConfig ：
+    获取 Servlet 配置信息：ServletConfig getServletConfig();
+    javax.servlet.ServletConfig  //javax.servlet.ServletConfig 实现子类对象包含了 Servlet 实现子类在 web.xml 中的配置信息， <servlet>...</servlet>
+        public interface ServletConfig {
+            String getServletName();   // 获取 <servlet>...</servlet> 中的 <servlet-name>
+            ServletContext getServletContext();  // 获取 Servlet 上下文
+            String getInitParameter(String name);  // 在 <servlet>...</servlet> 中的 <init-param> 中，根据指定名<param-name>获取参数值<param-value>
+            Enumeration<String> getInitParameterNames();  //获取所有初始化名称
+        }
+
+ServletContext 上下文：
+javax.servlet.ServletContext:
+    public interface ServletContext {}
+    一个 Java Web 项目只有一个 javax.servlet.ServletContext 对象，多个 javax.servlet.Servlet 对象共用同一个 ServletContext 对象
+    javax.servlet.ServletContext 对象在服务器启动时创建，在服务器关闭时销毁
+    获取 javax.servlet.ServletContext 对象：javax.servlet.ServletConfig # getServletContext();  // 获取 Servlet 上下文
+                                           javax.servlet.GenericServlet # getServletContext();
+                                           javax.servlet.http.HttpSession # getServletContext();
+                                           javax.servlet.ServletContextEvent # getServletContext();
+                                           javax.servlet.ServletRequestEvent # getServletContext();
+                                           javax.servlet.FilterConfig # getServletContext();
+    作为 Java Web 四大域对象（用来在多个 Servlet 对象之间传递数据）之一，提供了数据操作的方法：
+        1、void setAttribute(String name, Object value);  //存储域属性，name 为域属性名，value 为域属性值
+           Object getAttribute(String name);  //根据域属性名 name，获取域属性值
+           void removeAttribute(String name); //删除指定域属性名 name 的域属性，如果 name 不存在，则放到不处理
+           Enumeration<String> getAttributeNames(); //获取所有的域属性名
+    获取 web.xml 中公共的初始化配置信息，为所有 Servlet 使用： //一个 Servlet 只能获取属于自己的初始化配置信息
+        // web.xml 中，标签为 <context-param>...</context-param>
+        2、String getInitParameter(String name); //根据指定名 <param-name> 获取公共的初始化配置信息值 <param-value>
+           Enumeration<String> getInitParameterNames(); //获取所有的公共的初始化配置信息名
+    获取资源信息：
+        3、String getRealPath(String var1);  //指定文件的真实路径
+           Set<String> getResourcePaths(String var1); //获取该文件夹下的所有文件与文件夹（子文件夹中的文件不获取）
+
+
+利用 javax.servlet.ServletContext 对象在整一个 JavaWeb 项目中于所有 Servlet 来说唯一，可以进行一些统计，比如对同一项目中各个资源访问的累计
+    如：在每一个 Servlet 中：  //服务器重新启动，访问量则重新计算
+        ServletContext servletContext = this.getServletContext();
+        //同一项目中各个资源访问的累计
+        Integer count = (Integer) servletContext.getAttribute("count");
+        if (count == null){
+            count = 1;
+        } else {
+            count++;
+        }
+        resp.setContentType("text/html; charset=utf-8");
+        //服务器端响应内容
+        resp.getWriter().print("<p>本页面一共被访问 " + count + " 次！</p>");
+        // 保存访问量
+        servletContext.setAttribute("count", count);
+
+获取类路径资源：对一个 JavaWeb 项目而言，类路径就是 /WEB_INF/classes 和 /WEB_INF/lib 下每个 jar 包
+    将资源文件转换成输入流：
+         1、java.lang.Class<T>: public InputStream getResourceAsStream(String name){}
+              //name 不是以 / 开头，那么资源文件路径相对于当前类所在路径而言
+                  如：//要求资源文件 dbconfig.properties 与当前类在同一目录下
+                     //InputStream fis = JdbcUtils.class.getResourceAsStream("dbconfig.properties");
+              //name 是以 / 开头，那么资源文件路径相对于 /classes （程序编译后产生的）而言
+                  如：//要求资源文件 dbconfig.properties 在 /classes 下
+                     //InputStream fis = JdbcUtils.class.getResourceAsStream("/dbconfig.properties");
+         2、java.lang.ClassLoader：public InputStream getResourceAsStream(String name){}
+              //资源文件路径相对于 /classes（程序编译后产生的）而言
+
+
+网站页面的跳转 可以通过转发或重定向实现
+Servlet 请求：javax.servlet.ServletRequest：
+                public interface ServletRequest {}
+                获取客户端 ip 地址：String getRemoteAddr();
+                设置请求编码：void setCharacterEncoding(String encode) throws UnsupportedEncodingException; //一般设置为 UTF-8
+                todo      1、获取获取 javax.servlet.RequestDispatcher 对象： RequestDispatcher getRequestDispatcher(String path);
+                             //path 为转发页面相对路径，"/" 开头，可以说当前项目 URL 下的 .jsp 文件路径或者其他项目 URL 下的 .jsp 文件路径
+                     转发：2、使用 javax.servlet.RequestDispatcher 对象转发：
+                             void forward(ServletRequest req, ServletResponse resp) throws ServletException, IOException;
+                             //转发可以附带请求，比如 request.setAttribute("username", username);
+                                                   request.getRequestDispatcher("/jsp/index.jsp").forward(request, response); //在转发的文件中获取此参数
+                     包含：3、使用 javax.servlet.RequestDispatcher 对象包含：
+                             void include(ServletRequest var1, ServletResponse var2) throws ServletException, IOException;
+                             //注：包含与被包含是服务器编译成两个 Servlet 类，即有两个 .class 文件，只是将响应的内容合并
+Servlet 响应：javax.servlet.ServletResponse：
+                public interface ServletResponse {}
+                设置响应类型与编码：void setContentType(String type);//一般默认为 "text/html; charset=utf-8"
+                                                                  // 响应内容为 xml 字符串，则设置为 "text/xml; charset=utf-8"
+HttpServlet 请求：javax.servlet.http.HttpServletRequest：
+                    public interface HttpServletRequest extends ServletRequest {}
+HttpServlet 响应：javax.servlet.http.HttpServletResponse：
+                    public interface HttpServletResponse extends ServletResponse {}
+                    todo 重定向：void sendRedirect(String path) throws IOException;
+                           // path 为跳转页面相对路径，不能以 "/" 开头，当前项目 URL 下的 .jsp 文件路径或者其他项目 URL 下的 .jsp 文件路径
+                           // 重定向不会转发请求，只是简单的页面跳转
+
+
+
+
+
+

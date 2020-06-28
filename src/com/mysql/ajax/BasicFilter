@@ -1,0 +1,111 @@
+Java Web 三大组件：Servlet、Listener、Filter
+Java Web 四大域对象：javax.servlet.ServletContext：服务器开启到关闭，只有一个对象
+                   javax.servlet.http.HttpSession：客户端访问某个服务器页面到关闭该服务器所有页面，一个会话（一个会话包含多个请求）
+                   javax.servlet.ServletRequest：一个请求链    // .java 中 Servlet 类中包含前三大域
+                   javax.servlet.jsp.PageContext：一个 jsp 请求页面  // .jsp 中包含前四大域
+         所有域对象都能存储数据，由于内部的 Map 集合，用来在多个 Servlet 对象之间传递数据
+         都有 setAttribute("name") getAttribute() removeAttribute("name") 方法
+
+Servlet：运行在 web 服务器或应用服务器的程序，用来处理客户端请求的动态资源
+        服务器会将客户端发送的请求交给 Servlet 处理：接收请求数据；
+                                                处理请求；
+                                                完成响应
+
+Listener（监听器）：用于监听 web 应用中某些对象、信息的创建、销毁、增加，修改，删除等动作的发生，并作出相应的响应处理。
+                  当范围对象的状态发生变化的时候，服务器自动调用监听器对象中的方法。
+                  常用于统计在线人数和在线用户，系统加载时进行信息初始化，统计网站的访问量等等
+
+Filter（过滤器）：Servlet 技术中最实用的技术，通过 Filter 技术，对 Web 资源（在资源处理之前执行过滤器）进行拦截，从而实现一些特殊的功能。
+                如：实现 URL 级别的权限访问控制、过滤敏感词汇、压缩响应信息等一些高级功能
+                Web 服务器管理的 Web 资源：如Jsp、Servlet、静态图片文件或静态 .css文件、.html 文件等
+
+Filter（过滤器）实现步骤：
+    1、创建 .java 类实现 javax.servlet.Filter 接口，并实现方法：
+        void init(FilterConfig var1) throws ServletException;  //创建之后执行，进行初始化配置   // Filter 在服务器启动时创建
+        void doFilter(ServletRequest var1, ServletResponse var2, FilterChain var3) throws IOException, ServletException;
+             //过滤时调用方法 1、在客户端请求（调用资源）之前，执行过滤代码，filterChain.doFilter(request, response); 之前的代码
+                            2、放行客户端请求（调用资源）：filterChain.doFilter(request, response);
+                            3、在客户端请求（调用资源）结束之后，执行结束代码，filterChain.doFilter(request, response); 之后的代码
+        void destroy();  // 销毁之前，对非内存资源进行释放   // 在服务器关闭时销毁
+    2、在 web.xml 文件中配置，如：
+        <!--过滤器配置，过滤器，随服务器启动创建或关闭销毁-->
+        <filter>
+            <filter-name>ServletFilter</filter-name>
+            <filter-class>com.mysql.filter.ServletFilter</filter-class>
+            <init-param>    <!--初始话配置方式，可以多个-->
+                <param-name>生命周期方法1</param-name>
+                <param-value>初始化 init</param-value>
+            </init-param>
+        </filter>
+        <filter-mapping>
+            <filter-name>ServletFilter</filter-name>
+            <url-pattern>/*</url-pattern> <!--需要进行过滤（拦截）的客户端请求的 url 地址-->
+            //或者可以直接过滤某个或多个指定某命名的 servlet
+            <servlet-name>AjaxServlet1</servlet-name>
+            <servlet-name>AjaxServlet2</servlet-name>
+            <servlet-name>AjaxServlet3</servlet-name>
+            <dispatcher>REQUEST</dispatcher>   <!--过滤器拦截方式-->
+            <dispatcher>FORWARD</dispatcher>
+            <dispatcher>INCLUDE</dispatcher>
+            <dispatcher>ERROR</dispatcher>
+        </filter-mapping>
+
+Filter（过滤器）配置信息：Filter 实现子类在 web.xml 中的配置信息， <filter>...</filter>
+    javax.servlet.FilterConfig
+        public interface FilterConfig {
+            String getFilterName();   // 获取 <filter>...</filter> 中的 <filter-name>
+            ServletContext getServletContext();  // 获取 Servlet 上下文
+            String getInitParameter(String name);  // 在 <filter>...</filter> 中的 <init-param> 中，根据指定名<param-name>获取参数值<param-value>
+            Enumeration<String> getInitParameterNames();  //获取所有初始化名称
+        }
+
+FilterChain：过滤器链，"放行"客户端的请求或者进入下一个过滤器（如果有的话）
+    javax.servlet.FilterChain
+        public interface FilterChain {
+            //放行被过滤（拦截）的客户端的请求或者进入下一个过滤器（如果有的话）
+            void doFilter(ServletRequest var1, ServletResponse var2) throws IOException, ServletException;
+        }
+
+Filter（过滤器）拦截方式：在 web.xml 中的 <filter-mapping>...</filter-mapping> 中配置
+    <filter-mapping>
+        <filter-name>ServletFilter</filter-name>
+        <url-pattern>/*</url-pattern> <!--需要进行过滤（拦截）的客户端请求的 url 地址-->
+        <!--过滤器拦截方式-->
+        <dispatcher>REQUEST</dispatcher>    //直接请求：REQUEST  //默认方式
+        <dispatcher>FORWARD</dispatcher>    //转发：FORWARD
+        <dispatcher>INCLUDE</dispatcher>    //包含：INCLUDE
+        <dispatcher>ERROR</dispatcher>      //错误：ERROR
+    </filter-mapping>
+
+多个Filter（过滤器）执行顺序，依据 web.xml 中的配置的 <filter-mapping>...</filter-mapping> 的先后顺序：
+
+Filter（过滤器）应用场景：
+    1、放行客户端请求之前做预处理工作，比如设置请求编码
+    2、通过条件判断是否放行，比如校验当前用户是否判断，或者用户 ip 是否被禁用
+    3、在目标执行资源后，处理一些特殊工作，比如把目标资源的输出数据进行处理
+
+
+*********粗粒度权限控制************
+*********细粒度权限控制************
+RABC：基于角色的权限控制
+    需要创建5张表：tb_user
+                 tb_role
+                 tb_userrole
+                 tb_menu(增、删、改、查)
+                 tb_rolemenu
+
+
+*********页面静态化************
+页面静态化：把动态页面生成的 html 文件保存到服务器的文件上，
+          如果有相同的请求，服务器不会执行动态页面，而是给出之前响应请求已经生成的静态页面，从而提高搜索性能
+ todo /htmls 存放静态文件 .html
+     与静态 .html 绑定的 .jsp 文件需要设定编码：<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+
+
+
+
+
+
+
+

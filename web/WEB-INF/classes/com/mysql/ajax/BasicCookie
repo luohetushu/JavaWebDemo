@@ -1,0 +1,43 @@
+Cookie: 由 HTTP（HyperText Transfer Protocol, 超文本传输协议）协议制定
+       HTTP 协议规定：1 个 Cookie 最大 4KB    //保证不给浏览器太大压力
+                    1 个服务器最多向一个浏览器保存 20 个 Cookie
+                    1 个浏览器最多可以保存 300 个 Cookie
+Cookie 使用情况：由服务器保存 Cookie 到浏览器，在下次浏览器请求服务器时"归还"之前保存的 Cookie
+       用途：使用 Cookie 来跟踪客户端状况
+            记录客户端的用户信息
+
+JavaWeb 使用 Cookie：
+    原始方式：使用 response 发送 set-Cookie 响应头
+             使用 request 获取 Cookie 请求头
+    最新方式：使用 response.addCookies() 方法向浏览器保存 Cookie  // Cookie 不能跨浏览器
+             使用 request.getCookies() 方法获取浏览器"归还"的 Cookie
+
+javax.servlet.http.Cookie
+    public class Cookie implements Cloneable, Serializable {}
+    属性（成员变量）：private String name;
+                   private String value;
+                   private int maxAge = -1; // Cookie 可保存的最大时长，以 秒 为单位
+                       ** maxAge > 0  //表示浏览器会将 Cookie 保存到客户主机硬盘中，存储有效时长为设置的 maxAge 值
+                       ** maxAge < 0  //表示浏览器会将 Cookie 自己内存中，当浏览器关闭，浏览器进程结束，Cookie 也随之消失
+                       ** maxAge = 0  //浏览器不会保存该 Cookie，而会立马删除
+                   private String path;  //默认值为当前访问路径的父路径，
+                       // 如果访问 /cookies/cookie/save_cookie.jsp，则使用的 Cookie 的默认 path 为/cookies/cookie
+                       // 可以在 response.addCookies() 时设置 path，
+                       // 当浏览器访问服务器某条地址时，需要"归还"的哪些的 Cookie 由 path 决定
+                       // 比如，aCookie，path = /cookies/cookie；bCookie，path = /cookies；cCookie，path = /cookies/cookie/save
+                               访问 /cookies/cookie/index.jsp 时，"归还" bCookie，aCookie
+                   private String domain; //域名，当多个二级域共享 Cookie 时可以设置 domain
+                       // 比如 www.baidu.com zz.baidu.com zh.baidu.com new.baidu.com 之间共享 Cookie，可以
+                       // 设置 domain 为：cookie.setDomain(".baidu.com");
+                       // 设置 path 为：cookie.setPath("/");
+
+
+
+
+
+
+
+
+
+
+

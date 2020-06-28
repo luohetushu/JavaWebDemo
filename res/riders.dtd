@@ -1,0 +1,11 @@
+<!ELEMENT kamen-rider (heisei-rider+)>
+<!ELEMENT heisei-rider (name, time, riders, enemy)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT time (#PCDATA)>
+<!ELEMENT riders (#PCDATA)>
+<!ELEMENT enemy (#PCDATA)>
+
+<!--属性-->
+<!ATTLIST name id ID #IMPLIED>
+<!--实体-->
+<!ENTITY riderName "Drive" >

@@ -1,0 +1,150 @@
+标记性语言：使用标签来操作，如 html HyperText Markup Language：超文本标记语言，但标签固定，不可扩展
+扩展性语言：标签可以自定义
+
+浏览器打开 .xml 本地文件：file:/// + .xml 本地文件绝对路径
+          注：浏览器打开只校验 XML 语法（能显示标签内容样式），不校验 XML 的约束
+
+XML Extensible Markup Language: 扩展性标志语言，文件后缀为.xml
+  作用是存储和传输数据：可作为一种简单的数据库，存储并检索数据
+                     传输约定格式的文件
+                     作为软件的配置文件，如 c3p0 数据库连接池的配置文件
+
+XML 语法：1）、文档声明，.xml 文件中，首行首列：<?xml version="1.0" encoding="UTF-8"?>
+                                     属性：version：XML 版本，1.0 / 1.1 / 2.0
+                                          encoding：XML 编码
+                                          standalone：是否需要依赖其他文件，yes / no
+         2)、元素(标签)定义：在一个 .xml 文件中，有且仅有一个根标签
+                     在 .xml 文件中，空格与换行都当作内容来解析
+                     标签命名规则：.xml 中标签区分大小写
+                                 标签命名不能以数字、下划线(_)开头
+                                 标签命名不能以 xml/XML/Xml 等开头
+                                 标签命名不能有空格和冒号(:)
+                                 标签命名可以是中文
+         3）、属性定义：<标签 属性1="属性值1"[ 属性2="属性值2" 属性3="属性值3" ...]></标签>
+                     一个标签中可以有多个属性，属性值使用引号(单引号或双引号)包含
+                     多个属性不能重复命名
+                     属性命名规则与标签一致
+         4）、注释：<!-- 这是 XML 的注释，XML 注释不能嵌套 -->
+                  <!-- XML 注释也不能放在文件首行首列 -->
+         5）、特殊字符使用转义字符
+              &     &amp;
+              <     &lt;
+              >     &gt;
+              "     &quot;
+              '     &apos;
+              空格   &nbsp;
+         6)、CDATA 区：处理内容中存在多个需要转义的特殊字符，避免转义
+                  写法：<![CDATA[ 内容 ]]>
+         7）、PI（处理）指令：设置标签内容的样式，字体颜色、背景、大小等
+                      写法：<?xml-stylesheet type="text/css" href=".css 文件路径"?>  一般放于 声明语句 后一行
+                      注：该指令对中文命名的标签内容不起作用
+
+XML 约束：一般用来约束 .xml 文件中的标签，使之多个标签有相同的信息，去除含有不同信息的标签
+    约束技术：DTD
+             Schema
+XML 约束之 DTD Document Type Definition：文档类型定义
+    约束文件：.dtd 文件，文件中根据 .xml 中想要约束的标签及其子标签个数来罗列元素个数：<!ELEMENT>
+    判断要约束的标签及其子标签是复杂标签还是简单标签：
+             复杂标签：有子标签，则 .dtd 文件中元素写法为：<!ELEMENT 复杂标签名 (子标签1+, 子标签2, ...)> // + 表示有多个子标签1
+             简单标签：没有子标签，则 .dtd 文件中元素写法为：<!ELEMENT 简单标签名 约束规则>
+    语法规则：<!ELEMENT 要约束的标签名 约束规则>
+             约束简单标签：没有子标签： <!ELEMENT 简单标签名 约束规则>
+                         约束规则：(#PCDATA)  //约束标签内容为字符串
+                                  EMPTY  //约束标签内容为空
+                                  ANY    //约束标签内容为任意类型
+             约束复杂标签：有子标签：<!ELEMENT 复杂标签名 (子标签1+, 子标签2, ...)>
+                         子标签出现次数：+：表示子标签1出现一次或者多次
+                                       ?：表示子标签1出现0次或者一次
+                                       *：表示子标签1出现0次、一次或者多次
+                         子标签 todo 顺序与 .xml 文件中子标签的顺序一致
+                         子标签使用", "隔离：表示子标签在 .xml 文件中存在，且顺序一致
+                              使用"| "隔离：或，表示子标签在 .xml 文件中存在一方，不能都存在
+    引用约束：1、引用外部文件：<!DOCTYPE 要约束的标签名 SYSTEM ".dtd 文件路径">，一般放于要约束的标签上方，不能放在文件首行首列
+             2、使用内部约束：
+                <!DOCTYPE 要约束的标签名[
+                    <!ELEMENT 复杂标签名 (子标签1+, 子标签2, ...)>
+                    <!ELEMENT 简单标签名 (#PCDATA)>
+                    <!ELEMENT 简单标签名 (#PCDATA)>
+                    ...
+                ]>
+             3、引用网络文件约束：<!DOCTYPE 要约束的标签名 PUBLIC "约束文件名" "约束文件 URL">
+    定义属性：.xml 中，<标签名 属性名="属性值">标签内容</标签名>
+            .dtd 中，属性约束：<!ATTLIST 标签名 属性名 属性类型 属性的约束>
+                 属性类型：CDATA： // 表属性值为任意字符串
+                          枚举：如：(属性值1|属性值2|属性值3)  //表属性值只能为这枚举中一个
+                          ID： //表属性值只能 字母 或 _ 开头
+                 属性的约束：#REQUIED  //表该标签属性必须存在
+                 （可以没有）#IMPLIED  //表该标签属性可有可无
+                           #FIXED "属性固定值"   //表该标签属性的值为 #FIXED 后的固定值
+                           "直接值"   //表该标签属性的值默认为该"直接值"，如果 .xml 中属性有重新赋值，则为覆盖后的值
+                 注：枚举 与 #FIXED "属性固定值" 不可同时使用，不然产生约束冲突
+    实体定义：在内部 dtd 中定义：<!ENTITY 实体名 "实体值">
+            在 .xml 文件中引用，一般作为标签的内容：&实体名;
+            注：实体定义一般在内部 DTD 中，如果在外部 .dtd 文件中定义，在某些浏览器中可能获取不到数据
+
+XML 约束之 Schema：替代 DTD（Document Type Definition）
+    约束文件：.xsd 文件，根节点：</Schema xmlns="http://www.w3.org/2001/XMLSchema"> ... </Schema>
+    语法规则：Schema 语法符合 XML 语法，与 XML 语句一致
+             相较于 DTD 在 .xml 文件中只能有一个 <!DOCTYPE ... > 语句，Schema 可以有多条语句，不同 Schema 语句通过命名空间区分
+             Schema 对 .xml 文件中的标签内容的数据类型约束有更多种，比如定义一个整型数据类型
+    命名空间：targetNamespace="http://www.w3.org/20200518" //自己随便命名，通过这个引入约束文件
+    定义属性：必须是复杂标签，<attribute name="属性名" type="属性类型" use="使用情况">
+            <!-- use: optional(可选属性，默认) prohibited(禁止使用)  required(强制必须)-->
+
+标记型文档解析：
+   如，js 使用 dom 解析 .html 文件:根据 html 的层级结构，在内存中分配一个树形结构，将 html 的标签、属性和文本封装成对象
+                                封装对象有：Document 对象、Element 对象、文本对象、Node 节点对象
+
+XML 解析技术：dom（Document Object Model 文档对象模型） 和 sax（Simple API for XML）
+    dom 解析过程：根据 xml 的层级结构，在内存中分配一个树形结构，将 xml 的根标签、子标签、属性和文本封装成对象
+            优点：方便实现增、删、改操作
+            缺点：如果 .xml 文件过大，容易造成内存溢出
+    sax 解析过程：采用事件驱动，从上到下一行一行边读边解析，解析到某一个对象，返回对象名称
+            优点：不会造成内存溢出，方便查询
+            缺点：不能进行增、删、改操作
+解析器之 JAXP（Java API for XML Processing） 解析标准实现：
+    JAXP 开发包是 JavaSE 的一部分，由以下几个包及子包组成：
+              org.w3c.dom: 提供 DOM 方式解析 XML 的标准接口
+              org.xml.sax: 提供 SAX 方式解析 XML 的标准接口
+              javax.xml.*: 提供解析 XML 文档的类
+                 javax.xml.parsers 包：提供解析器工厂类得到解析器类对象
+                           DOM：DocumentBuilder 解析器类
+                                DocumentBuilderFactory 解析器工厂类
+                           SAX：SAXParser 解析器类
+                                SAXParserFactory 解析器工厂类
+
+解析器之 Dom4J：解析开发包     //dom4j-2.1.3.jar
+    流程：// SAXReader creates a Dom4J tree for SAX parsing event
+         SAXReader reader = new SAXReader();
+         //获取 org.dom4j.Document 文档对象
+         Document document = reader.read("res" + File.separator + "riders.xml");
+         。。。。//各种增删改、查操作
+    对 XPATH 支持：根据给定 XPATH 直接获取到指定标签  //默认情况下  Dom4J 不支持 XPATH，需要导入相应 jar 包  //jaxen-1.1.2.jar
+             实例：1、/AAA/BBB/CCC   //一层一层读取，获取 CCC 标签，以及相同结构下的 CCC 标签
+                  2、//BBB          //表示获取到所有的 BBB 标签
+                  3、/AAA/BBB/*     //表示获取 BBB 标签下的所有子标签，以及相同结构下的 BBB 标签下的所有子标签
+                     //*            //表示获取所有标签
+                     /*/*/*/BBB     //表示这种三层结构下的 BBB 标签
+                  4、/AAA/BBB[1]    //表示获取 AAA 标签下的第一个 BBB 标签
+                     /AAA/BBB[last()]    //表示获取 AAA 标签下的最后一个 BBB 标签
+                  5、//@属性名       //表示获取所有的相同名的属性
+                     //BBB/@属性名   //表示获取 BBB 标签的所有的相同属性名的属性
+                     //BBB[@属性名]  //表示获取到拥有相同名的属性的所有的  BBB 标签
+                     //BBB[@属性名='属性值'] //表示获取到拥有相同的 属性名="属性值" 的所有的  BBB 标签
+    支持 XPATH 方法：List<Node> selectNodes(String var1);  // 一般获取多个标签 var1 为 " XPATH 表达式"
+                    Node selectSingleNode(String var1);   // 一般获取一个标签 var1 为 " XPATH 表达式"
+
+解析器之 JDom：解析开发包
+
+
+
+
+
+
+
+
+
+
+
+
+

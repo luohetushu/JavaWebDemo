@@ -1,0 +1,52 @@
+Java Web 三大组件：Servlet、Listener、Filter
+Java Web 四大域对象：javax.servlet.jsp.PageContext、javax.servlet.ServletRequest、
+                   javax.servlet.http.HttpSession、javax.servlet.ServletContext
+         所有域对象都能存储数据，由于内部的 Map 集合，用来在多个 Servlet 对象之间传递数据
+         都有 setAttribute("name") getAttribute() removeAttribute("name") 方法
+
+javax.servlet.http.HttpSession: 由 JavaWeb 提供，用来会话跟踪的类
+    session 是服务器端对象，保存在服务器端
+
+HttpSession 底层依赖 Cookie，或者 URL 重写
+    原理：依赖 Cookie：通过获取 Cookie 中的 sessionId 来获取 session 对象
+                     *** 如果 sessionId 不存在，则服务器端创建 session 对象并保存，同时将 sessionId 保存在 Cookie 中
+                     todo 服务器不会马上创建 session 对象，只有在第一次获取 request.getSession() 时才创建
+         URL 重写：在网站的所有超链接或者表单之中添加特殊的请求方式：sessionId
+                  response.encodeUrl(String url); //智能重写 url，当请求中没有"归还" sessionId 的 Cookie，则重写 url，否则不重写
+
+HttpSession：会话范围：是某个用户从访问某个服务器开始，到最终关闭所有该服务器页面结束
+    会话：所谓会话是某个用户对某个服务器的连贯性请求，指用户多次请求之间没有关闭浏览器
+         服务器会为每个会话创建一个 session 对象，该 session 对象保存在 Map 中，该 Map 称为 session 缓存
+    获取 session 对象：Servlet 中：HttpSession session = request.getSession();  // request 为 HttpServletRequest 对象
+                     .jsp 中：session 对象为内置对象，可以之间使用
+    session 域对象相关方法：void setAttribute(String name, Object value);
+                          Object getAttribute(String name);
+                          void removeAttribute(String var1);
+    方法：String getId(); //获取 sessionId
+         void setMaxInactiveInterval(int time); // 设置 session 最大不活动时间，以 秒 为单位
+         int getMaxInactiveInterval(); // 获取 session 最大不活动时间，默认 30 分钟，如果超时还未使用，服务器会将该 session 对象移除
+             todo 可以在 web.xml 中设置 session 最大不活动时间：
+                    <!--设置 session 最大不活动时间，以 分钟 为单位-->
+                    <session-config>
+                        <session-timeout>30</session-timeout>
+                    </session-config>
+         void invalidate(); //使 session 失效，失效后，当客户端再次请求，
+                            //服务器端会重新创建新的 session 对象并保存，同时将新 sessionId 保存在 Cookie 中
+         boolean isNew(); //判断是否为新，当服务器在第一次获取 request.getSession() 时创建创建 session 对象，
+                          //并没有将新 sessionId 保存在 Cookie 中，此时状态即为新的
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

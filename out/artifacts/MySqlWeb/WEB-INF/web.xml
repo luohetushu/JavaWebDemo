@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+    
+    <servlet>
+        <servlet-name>LifecycleServlet</servlet-name>
+        <servlet-class>com.mysql.servlet.LifecycleServlet</servlet-class>
+        <init-param>
+            <param-name>生命周期方法1</param-name>
+            <param-value>初始化 init</param-value>
+        </init-param>
+        <init-param>
+            <param-name>生命周期方法2</param-name>
+            <param-value>处理请求 service</param-value>
+        </init-param>
+        <init-param>
+            <param-name>生命周期方法3</param-name>
+            <param-value>销毁 destroy</param-value>
+        </init-param>
+        <!--<load-on-startup>0</load-on-startup>设置非负整数-->
+    </servlet>
+
+    <!-- 可以有多个 url-pattern，指向同一个 Servlet -->
+    <!-- url-pattern 可以使用通配符 * ：只能出现一次；只能匹配前缀或后缀，不能匹配中间 -->
+    <!-- <url-pattern>/*</url-pattern> // 匹配所有 url-->
+    <!-- <url-pattern>/*.do</url-pattern> //错误形式：不能匹配中间-->
+    <!-- <url-pattern>*.do</url-pattern> //匹配后缀 -->
+    <!-- <url-pattern>*.*</url-pattern> //错误形式：不能出现多次-->
+    <servlet-mapping>
+        <servlet-name>LifecycleServlet</servlet-name>
+        <url-pattern>/LifecycleServlet</url-pattern>
+    </servlet-mapping>
+
+    <!--获取图片验证码 Servlet-->
+    <servlet>
+        <servlet-name>ImageCaptchaServlet</servlet-name>
+        <servlet-class>com.mysql.servlet.ImageCaptchaServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ImageCaptchaServlet</servlet-name>
+        <url-pattern>/ImageCaptchaServlet</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>AjaxServlet</servlet-name>
+        <servlet-class>com.mysql.servlet.AjaxServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AjaxServlet</servlet-name>
+        <url-pattern>/AjaxServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RegisterServlet</servlet-name>
+        <servlet-class>com.mysql.servlet.RegisterServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>RegisterServlet</servlet-name>
+        <url-pattern>/RegisterServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>XMLServlet</servlet-name>
+        <servlet-class>com.mysql.servlet.XMLServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>XMLServlet</servlet-name>
+        <url-pattern>/XMLServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>JsonServlet</servlet-name>
+        <servlet-class>com.mysql.servlet.JsonServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>JsonServlet</servlet-name>
+        <url-pattern>/JsonServlet</url-pattern>
+    </servlet-mapping>
+
+    <!--自定义的请求处理方法 Servlet-->
+    <!--<servlet>
+        <servlet-name>CustomServlet</servlet-name>
+        <servlet-class>com.mysql.servlet.CustomServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CustomServlet</servlet-name>
+        <url-pattern>/CustomServlet</url-pattern>
+    </servlet-mapping>-->
+
+    <!--  .jsp 文件外部引用文件  -->
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/ajax-lib/ajax_utils.js</url-pattern>
+    </servlet-mapping>
+
+    <!-- 公共的初始化配置信息，使用 javax.servlet.ServletContext 对象获取，为所有 Servlet 共用-->
+    <!--<context-param>
+        <param-name>公共配置信息1</param-name>
+        <param-value>公共配置信息值1</param-value>
+    </context-param>
+    <context-param>
+        <param-name>公共配置信息2</param-name>
+        <param-value>公共配置信息值2</param-value>
+    </context-param>-->
+
+    <!--监听器配置，监听域对象的"创建"与"销毁"，以及域属性的"添加、移除与覆盖"-->
+    <listener>
+        <listener-class>com.mysql.listener.ServletListener</listener-class>
+    </listener>
+
+    <!--过滤器配置，过滤器，随服务器启动创建或关闭销毁-->
+    <!--全站编码过滤器-->
+    <filter>
+        <filter-name>EncodingFilter</filter-name>
+        <filter-class>com.mysql.filter.EncodingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>EncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern> <!--需要进行过滤（拦截）的客户端请求的 url 地址-->
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
+
+    <!--过滤器配置，过滤器，随服务器启动创建或关闭销毁-->
+    <filter>
+        <filter-name>ServletFilter</filter-name>
+        <filter-class>com.mysql.filter.ServletFilter</filter-class>
+        <init-param>
+            <param-name>生命周期方法1</param-name>
+            <param-value>初始化 init</param-value>
+        </init-param>
+        <init-param>
+            <param-name>生命周期方法2</param-name>
+            <param-value>过滤拦截 doFilter</param-value>
+        </init-param>
+        <init-param>
+            <param-name>生命周期方法3</param-name>
+            <param-value>销毁 destroy</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>ServletFilter</filter-name>
+        <url-pattern>/servlet/*</url-pattern> <!--需要进行过滤（拦截）的客户端请求的 url 地址-->
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
+
+    <!--过滤器配置，过滤器，随服务器启动创建或关闭销毁-->
+    <!--粗粒度权限控制 过滤登录的用户是否是会员-->
+    <filter>
+        <filter-name>MemberFilter</filter-name>
+        <filter-class>com.mysql.filter.MemberFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>MemberFilter</filter-name>
+        <url-pattern>/member/*</url-pattern> <!--需要进行过滤（拦截）的客户端请求的 url 地址-->
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
+    <filter>
+        <filter-name>AdminFilter</filter-name>
+        <filter-class>com.mysql.filter.AdminFilter</filter-class>
+    </filter>
+    <!--粗粒度权限控制 过滤登录的用户是否是管理员-->
+    <filter-mapping>
+        <filter-name>AdminFilter</filter-name>
+        <url-pattern>/admin/*</url-pattern> <!--需要进行过滤（拦截）的客户端请求的 url 地址-->
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
+
+    <!--设置 session 最大不活动时间，以 分钟 为单位-->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+
+    
+</web-app>

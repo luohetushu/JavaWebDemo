@@ -1,0 +1,24 @@
+Java 对象中与数据库中的时间类型转换
+java.util.Date 与 java.sql.Date、java.sql.Time、java.sql.Timestamp
+
+数据库中的时间类型：
+java.sql.Date： //日前类型，格式：yyyy-MM-dd   注：日前类型也要用单引号
+    public class Date extends java.util.Date{}
+
+java.sql.Time: //时间类型，格式：HH:mm:ss
+    public class Time extends java.util.Date{}
+
+java.sql.Timestamp:
+    public class Timestamp extends java.util.Date{}
+
+数据库中的时间类型转换成 java.util.Date: 直接引用，向上转型
+java.util.Date 转成数据库中的时间类型：需要将 java.util.Date 转换成 long 类型的毫秒值，再使用数据库中的时间类型创建
+    java.uti.Date uDate = new java.util.Date();
+    long time = uDate.getTime();
+    java.sql.Date sDate = new java.sql.Date(time);
+    java.sql.Time sTime = new java.sql.Time(time);
+    java.sql.Timestamp sTimestamp = new java.sql.Timestamp(time);
+
+
+
+

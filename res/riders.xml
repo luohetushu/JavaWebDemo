@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/css" href="rider.css"?> <!--引用样式文件-->
+<!--DTD 外部文件约束-->
+<!--<!DOCTYPE kamen-rider SYSTEM "riders.dtd">-->
+<!--样式约束内部约束-->
+<!--<!DOCTYPE kamen-rider[
+        <!ELEMENT kamen-rider (heisei-rider+)>
+        <!ELEMENT heisei-rider (name, time, riders)>
+        <!ELEMENT name (#PCDATA)>
+        <!ELEMENT time (#PCDATA)>
+        <!ELEMENT riders (#PCDATA)>
+        <!ENTITY riderName "Drive" >
+]>-->
+<!--Schema 外部文件约束-->
+<kamen-rider xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xs1="http://www.example.org/20200518"
+             xmlns:xs2="http://www.example.org/20200519"
+             xsi:schemaLocation="http://www.example.org/20200518 riders.xsd http://www.example.org/20200519 riders2.xsd"> <!--约束文件中的命名空间 约束文件路径-->
+    <heisei-rider id="11">
+        <xs1:name>W</xs1:name>
+        <xs1:time>2010-2011</xs1:time>
+        <xs1:riders>3</xs1:riders>  <!--约束文件一-->
+        <xs2:enemy>enemy0</xs2:enemy>  <!--约束文件二-->
+    </heisei-rider>
+    <heisei-rider>
+        <name>OOO</name>
+        <time>2011-2012</time>
+        <riders>2</riders>
+        <enemy>enemy1</enemy>
+    </heisei-rider>
+    <heisei-rider>
+        <name>Fourze</name>
+        <time>2012-2013</time>
+        <riders>2</riders>
+        <enemy>enemy2</enemy>
+    </heisei-rider>
+    <heisei-rider>
+        <name>Wizard</name>
+        <time>2013-2014</time>
+        <riders>2</riders>
+        <enemy>enemy3</enemy>
+    </heisei-rider>
+    <heisei-rider>
+        <name>Gaim</name>
+        <time>2014-2015</time>
+        <riders>7</riders>
+        <enemy>enemy4</enemy>
+    </heisei-rider>
+    <heisei-rider>
+        <name>Drive</name>  <!--在内部dtd中定义该实体-->
+        <time>2015-2016</time>
+        <riders>3</riders>
+        <enemy>enemy5</enemy>
+    </heisei-rider>
+    <heisei-rider>
+        <name>Ghost</name>
+        <time>2016-2017</time>
+        <riders>3</riders>
+        <enemy>enemy6</enemy>
+    </heisei-rider>
+    <heisei-rider>
+        <name>Ex-aid</name>
+        <time>2017-2018</time>
+        <riders>4</riders>
+        <enemy>enemy7</enemy>
+    </heisei-rider>
+    <heisei-rider>
+        <name>Build</name>
+        <time>2018-2019</time>
+        <riders>4</riders>
+        <enemy>enemy8</enemy>
+    </heisei-rider>
+    <heisei-rider>
+        <name>Zi-O</name>
+        <time>2019-2020</time>
+        <riders>5</riders>
+        <enemy>enemy9</enemy>
+    </heisei-rider>
+</kamen-rider>
